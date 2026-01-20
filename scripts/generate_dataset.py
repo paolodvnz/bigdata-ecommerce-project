@@ -1,6 +1,6 @@
 """
 Generate E-commerce Dataset
-Creates both FULL (100M transactions) and SAMPLE (100K transactions) datasets
+Creates both FULL (200M transactions) and SAMPLE (20M transactions) datasets
 """
 import os
 import sys
