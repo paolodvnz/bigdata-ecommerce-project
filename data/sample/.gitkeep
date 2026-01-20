@@ -1,0 +1,2 @@
+# This file ensures the data/sample/ directory is tracked by Git
+# Sample dataset files (parquet) will be generated here by setup script

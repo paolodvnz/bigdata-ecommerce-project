@@ -1,0 +1,2 @@
+# This file ensures the minio-data/ directory is tracked by Git
+# The directory itself will be populated when Docker containers run
