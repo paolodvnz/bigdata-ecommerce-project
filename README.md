@@ -26,7 +26,7 @@ Il progetto include uno script di setup automatico che configura tutto:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/TUO_USERNAME/bigdata-ecommerce-project.git
+git clone https://github.com/paolodvnz/bigdata-ecommerce-project.git
 cd bigdata-ecommerce-project
 
 # 2. Crea ambiente virtuale
