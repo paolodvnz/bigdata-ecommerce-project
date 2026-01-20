@@ -181,25 +181,6 @@ transactions = spark.read.parquet(get_s3a_path("sample/", "transactions/"))
 - Elaborazione distribuita con Spark
 - Ottimizzazioni performance (partitioning, caching, shuffle)
 
-### Machine Learning
-- 4+ modelli ML tracciati con MLflow:
-  - Recommendation System (ALS)
-  - Classification (Random Forest)
-  - Clustering (K-Means)
-  - Regression (GBT)
-
-### Data Engineering
-- Pipeline ETL scalabili
-- Storage ottimizzato (Parquet, ORC)
-- Delta Lake per ACID transactions
-- Spark Structured Streaming
-
-### Business Analytics
-- Vendite per area geografica
-- Trend di crescita
-- Customer segmentation
-- Product recommendations
-
 ## Stop e Cleanup
 
 ```bash
