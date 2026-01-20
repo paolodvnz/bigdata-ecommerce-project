@@ -29,16 +29,16 @@ from scripts.utils.data_generator import (
 # FULL Dataset Parameters
 FULL_CUSTOMERS = 1_000_000
 FULL_PRODUCTS = 50_000
-FULL_TRANSACTIONS = 100_000_000
+FULL_TRANSACTIONS = 200_000_000
 BATCH_SIZE_FULL = 1_000_000   # 1M transactions per batch
-NUM_BATCHES_FULL = FULL_TRANSACTIONS // BATCH_SIZE_FULL    # 100 batches
+NUM_BATCHES_FULL = FULL_TRANSACTIONS // BATCH_SIZE_FULL
 
 # SAMPLE Dataset Parameters 
-SAMPLE_CUSTOMERS = 1_000
-SAMPLE_PRODUCTS = 1_000
-SAMPLE_TRANSACTIONS = 1_000_000
-BATCH_SIZE_SAMPLE = 10_000   # 10K transactions per batch
-NUM_BATCHES_SAMPLE = SAMPLE_TRANSACTIONS // BATCH_SIZE_SAMPLE    # 100 batches
+SAMPLE_CUSTOMERS = 10_000
+SAMPLE_PRODUCTS = 10_000
+SAMPLE_TRANSACTIONS = 20_000_000
+BATCH_SIZE_SAMPLE = 20_000   # 10K transactions per batch
+NUM_BATCHES_SAMPLE = SAMPLE_TRANSACTIONS // BATCH_SIZE_SAMPLE
 
 # Paths
 BASE_DIR = Path(__file__).parent.parent
@@ -277,8 +277,8 @@ def main():
     else:
         # Interactive menu
         print("\nWhat would you like to generate?")
-        print("  1. FULL dataset only (100M transactions, ~10-15 min)")
-        print("  2. SAMPLE dataset only (100K transactions, ~1 min)")
+        print("  1. FULL dataset only (200M transactions, ~30 min)")
+        print("  2. SAMPLE dataset only (20M transactions, ~2-3 min)")
         print("  3. BOTH datasets (recommended)")
         
         choice = input("\nEnter choice (1/2/3) [default: 3]: ").strip() or "3"
