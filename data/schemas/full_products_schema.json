@@ -1,0 +1,17 @@
+{
+  "columns": {
+    "product_id": "object",
+    "product_name": "object",
+    "category": "object",
+    "subcategory": "object",
+    "brand": "object",
+    "price": "float64",
+    "cost": "float64",
+    "stock_quantity": "int64",
+    "weight_kg": "float64",
+    "rating": "float64",
+    "num_reviews": "int64"
+  },
+  "num_rows": 50000,
+  "num_columns": 11
+}
