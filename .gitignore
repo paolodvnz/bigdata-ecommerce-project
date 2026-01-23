@@ -53,18 +53,17 @@ mlruns/*
 *.log
 *.tmp
 
-# Data - ignora parquet ma mantieni struttura
+# Data - ignora dati ma mantieni struttura
 data/raw/*
 !data/raw/.gitkeep
 
 data/sample/*
 !data/sample/.gitkeep
 
-data/processed/*
-
-# Ignora tutti i file parquet ovunque
+# Ignora tutti i dati ovunque
 *.parquet
 *.orc
+*.csv
 
 # Spark
 spark-warehouse/

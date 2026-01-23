@@ -1,6 +1,7 @@
 """
 Generate E-commerce Dataset
-Creates both FULL (200M transactions) and SAMPLE (20M transactions) datasets
+Creates both FULL (100M transactions) and SAMPLE (20M transactions) datasets
+All files saved as CSV (flat, no partitioning) for maximum compatibility
 """
 import os
 import sys
@@ -8,7 +9,6 @@ import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 from datetime import datetime
-import argparse
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -29,16 +29,16 @@ from scripts.utils.data_generator import (
 # FULL Dataset Parameters
 FULL_CUSTOMERS = 1_000_000
 FULL_PRODUCTS = 50_000
-FULL_TRANSACTIONS = 200_000_000
+FULL_TRANSACTIONS = 100_000_000
 BATCH_SIZE_FULL = 1_000_000   # 1M transactions per batch
-NUM_BATCHES_FULL = FULL_TRANSACTIONS // BATCH_SIZE_FULL
+NUM_BATCHES_FULL = FULL_TRANSACTIONS // BATCH_SIZE_FULL    # 100 batches
 
-# SAMPLE Dataset Parameters 
-SAMPLE_CUSTOMERS = 10_000
-SAMPLE_PRODUCTS = 10_000
+# SAMPLE Dataset Parameters (for Notebook 1 - Pandas Limits)
+SAMPLE_CUSTOMERS = 20_000
+SAMPLE_PRODUCTS = 1_000
 SAMPLE_TRANSACTIONS = 20_000_000
-BATCH_SIZE_SAMPLE = 20_000   # 10K transactions per batch
-NUM_BATCHES_SAMPLE = SAMPLE_TRANSACTIONS // BATCH_SIZE_SAMPLE
+BATCH_SIZE_SAMPLE = 500_000   # 500K transactions per batch
+NUM_BATCHES_SAMPLE = SAMPLE_TRANSACTIONS // BATCH_SIZE_SAMPLE    # 40 batches
 
 # Paths
 BASE_DIR = Path(__file__).parent.parent
@@ -52,14 +52,13 @@ RAW_DIR.mkdir(parents=True, exist_ok=True)
 SAMPLE_DIR.mkdir(parents=True, exist_ok=True)
 SCHEMAS_DIR.mkdir(parents=True, exist_ok=True)
 
-
 # ===========================
 # HELPER FUNCTIONS
 # ===========================
 
-def save_parquet(df: pd.DataFrame, filepath: Path, compression='snappy'):
-    """Save dataframe as Parquet with compression"""
-    df.to_parquet(filepath, engine='pyarrow', compression=compression, index=False)
+def save_csv(df: pd.DataFrame, filepath: Path):
+    """Save dataframe as CSV"""
+    df.to_csv(filepath, index=False)
 
 def save_schema(df: pd.DataFrame, filepath: Path):
     """Save dataframe schema as JSON"""
@@ -72,7 +71,6 @@ def save_schema(df: pd.DataFrame, filepath: Path):
     import json
     with open(filepath, 'w') as f:
         json.dump(schema, f, indent=2)
-
 
 # ===========================
 # GENERATE DATASET 
@@ -114,8 +112,9 @@ def generate_dataset(
     customers_df = generate_customers(num_customers)
     validate_customers(customers_df)
     
-    customers_path = output_dir / "customers.parquet"
-    save_parquet(customers_df, customers_path)
+    # Save as CSV
+    customers_csv = output_dir / "customers.csv"
+    save_csv(customers_df, customers_csv)
     save_schema(customers_df, SCHEMAS_DIR / f"{dataset_name.lower()}_customers_schema.json")
     
     # Step 2: Generate Products
@@ -123,17 +122,22 @@ def generate_dataset(
     products_df = generate_products(num_products)
     validate_products(products_df)
     
-    products_path = output_dir / "products.parquet"
-    save_parquet(products_df, products_path)
+    # Save as CSV
+    products_csv = output_dir / "products.csv"
+    save_csv(products_df, products_csv)
     save_schema(products_df, SCHEMAS_DIR / f"{dataset_name.lower()}_products_schema.json")
     
-    # Step 3: Generate Transactions (in batches with partitioning)
+    # Step 3: Generate Transactions as single CSV file (no partitioning)
     print(f"\n[3/3] Generating {num_transactions:,} transactions ({num_batches:,} batches)...")
     
-    transactions_dir = output_dir / "transactions"
-    transactions_dir.mkdir(exist_ok=True)
+    transactions_csv = output_dir / "transactions.csv"
+    
+    # Remove existing file if present
+    if transactions_csv.exists():
+        transactions_csv.unlink()
     
     all_transactions = []
+    first_batch = True
     
     for batch_num in tqdm(range(num_batches), desc="Generating batches", unit="batch"):
         start_id = batch_num * batch_size + 1
@@ -151,108 +155,30 @@ def generate_dataset(
         if (batch_num + 1) % 10 == 0 or (batch_num + 1) == num_batches:
             combined = pd.concat(all_transactions, ignore_index=True)
             
-            # Save partitioned by year and month
-            for (year, month), group in combined.groupby([
-                pd.to_datetime(combined['transaction_date']).dt.year,
-                pd.to_datetime(combined['transaction_date']).dt.month
-            ]):
-                partition_dir = transactions_dir / f"year={year}" / f"month={month:02d}"
-                partition_dir.mkdir(parents=True, exist_ok=True)
-                
-                # Use batch range in filename for uniqueness
-                batch_start = (batch_num // 10) * 10
-                partition_file = partition_dir / f"part-{batch_start:04d}-{batch_num:04d}.parquet"
-                save_parquet(group, partition_file)
+            # Append to single CSV file (flat, no partitioning)
+            combined.to_csv(
+                transactions_csv,
+                mode='a',  # Append mode
+                header=first_batch,  # Header only for first batch
+                index=False
+            )
             
-            # Clear memory
-            all_transactions = []
+            first_batch = False
+            all_transactions = []  # Clear memory
     
     # Validate a sample
     print("\nValidating transaction sample...")
-    # Read back a sample for validation
-    sample_files = list(transactions_dir.rglob("*.parquet"))[:5]
-    if sample_files:
-        sample_trans = pd.concat([pd.read_parquet(f) for f in sample_files], ignore_index=True)
-        validate_transactions(sample_trans, customers_df, products_df)
+    sample_trans = pd.read_csv(transactions_csv, nrows=100000)
+    validate_transactions(sample_trans, customers_df, products_df)
     
     # Save schema
-    if sample_files:
-        save_schema(sample_trans, SCHEMAS_DIR / f"{dataset_name.lower()}_transactions_schema.json")
+    save_schema(sample_trans, SCHEMAS_DIR / f"{dataset_name.lower()}_transactions_schema.json")
     
     print(f"\n{dataset_name} dataset generation complete!")
     print(f"  - Customers: {num_customers:,} records")
     print(f"  - Products: {num_products:,} records")
     print(f"  - Transactions: {num_transactions:,} records")
     print(f"  - Location: {output_dir}")
-
-
-# ===========================
-# STATISTICS
-# ===========================
-
-def print_statistics():
-    """Print dataset statistics"""
-    
-    print("\n" + "="*60)
-    print("DATASET STATISTICS")
-    print("="*60)
-    
-    for dataset_name, data_dir in [("FULL", RAW_DIR), ("SAMPLE", SAMPLE_DIR)]:
-        print(f"\n{dataset_name} DATASET:")
-        
-        if not data_dir.exists():
-            print(f"Not generated")
-            continue
-            
-        if (data_dir / "customers.parquet").exists():
-            customers = pd.read_parquet(data_dir / "customers.parquet")
-            print(f"Customers: {len(customers):,}")
-            print(f"  - VIP: {(customers['customer_segment']=='VIP').sum():,} ({(customers['customer_segment']=='VIP').sum()/len(customers)*100:.1f}%)")
-            print(f"  - Regular: {(customers['customer_segment']=='Regular').sum():,} ({(customers['customer_segment']=='Regular').sum()/len(customers)*100:.1f}%)")
-            print(f"  - Occasional: {(customers['customer_segment']=='Occasional').sum():,} ({(customers['customer_segment']=='Occasional').sum()/len(customers)*100:.1f}%)")
-        
-        if (data_dir / "products.parquet").exists():
-            products = pd.read_parquet(data_dir / "products.parquet")
-            print(f"\nProducts: {len(products):,}")
-            print(f"  - Categories: {products['category'].nunique()}")
-            print(f"  - Top 3 categories:")
-            for cat, count in products['category'].value_counts().head(3).items():
-                print(f"      - {cat}: {count:,}")
-        
-        # Count transaction files
-        trans_dir = data_dir / "transactions"
-        if trans_dir.exists():
-            trans_files = list(trans_dir.rglob("*.parquet"))
-            print(f"\nTransactions partition files: {len(trans_files):,}")
-            
-            # Sample a few files to estimate total
-            if trans_files:
-                sample_df = pd.read_parquet(trans_files[0])
-                print(f"  - Sample file size: {len(sample_df):,} records")
-
-
-# ===========================
-# PARSE ARGUMENTS
-# ===========================
-
-def parse_arguments():
-    """
-    Parse command line arguments
-    
-    Returns:
-        argparse.Namespace: Parsed arguments
-    """
-    parser = argparse.ArgumentParser(
-        description='Generate BigData E-commerce dataset'
-    )
-    parser.add_argument(
-        '--mode',
-        type=str,
-        choices=['sample', 'full', 'both'],
-        default=None,  # None = interactive menu
-        help='Dataset to generate: sample, full, or both'
-    )
-    return parser.parse_args()
 
 # ===========================
 # MAIN
@@ -266,30 +192,18 @@ def main():
     print("="*50)
     print(f"\nStart time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
-    # Parse arguments CLI
-    args = parse_arguments()
+    # Choose what to generate
+    print("\nWhat would you like to generate?")
+    print("  1. FULL dataset only (100M transactions, ~15-20 min)")
+    print("  2. SAMPLE dataset only (20M transactions, ~3-5 min)")
+    print("  3. BOTH datasets (recommended, ~20-25 min)")
     
-    # Mode: CLI or interactive
-    if args.mode is not None:
-        # CLI Mode
-        mode = args.mode
-        print(f"\nModalità CLI: {mode.upper()}")
-    else:
-        # Interactive menu
-        print("\nWhat would you like to generate?")
-        print("  1. FULL dataset only (200M transactions, ~30 min)")
-        print("  2. SAMPLE dataset only (20M transactions, ~2-3 min)")
-        print("  3. BOTH datasets (recommended)")
-        
-        choice = input("\nEnter choice (1/2/3) [default: 3]: ").strip() or "3"
-        mode_map = {'1': 'full', '2': 'sample', '3': 'both'}
-        mode = mode_map.get(choice, 'both')
+    choice = input("\nEnter choice (1/2/3) [default: 3]: ").strip() or "3"
     
     start_time = datetime.now()
     
     try:
-        # Generate datasets based on mode
-        if mode in ["full", "both"]:
+        if choice in ["1", "3"]:
             generate_dataset(
                 num_customers=FULL_CUSTOMERS,
                 num_products=FULL_PRODUCTS,
@@ -298,8 +212,8 @@ def main():
                 output_dir=RAW_DIR,
                 dataset_name="FULL"
             )
-        
-        if mode in ["sample", "both"]:
+
+        if choice in ["2", "3"]:
             generate_dataset(
                 num_customers=SAMPLE_CUSTOMERS,
                 num_products=SAMPLE_PRODUCTS,
@@ -308,8 +222,6 @@ def main():
                 output_dir=SAMPLE_DIR,
                 dataset_name="SAMPLE"
             )
-        
-        print_statistics()
         
         end_time = datetime.now()
         duration = (end_time - start_time).total_seconds()

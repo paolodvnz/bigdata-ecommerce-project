@@ -11,10 +11,10 @@
     "final_amount": "float64",
     "shipping_cost": "float64",
     "transaction_date": "object",
-    "transaction_timestamp": "datetime64[ns]",
+    "transaction_timestamp": "object",
     "payment_method": "object",
     "status": "object"
   },
-  "num_rows": 27619,
+  "num_rows": 100000,
   "num_columns": 14
 }

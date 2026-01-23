@@ -12,6 +12,6 @@
     "rating": "float64",
     "num_reviews": "int64"
   },
-  "num_rows": 10000,
+  "num_rows": 1000,
   "num_columns": 11
 }
