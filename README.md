@@ -18,7 +18,6 @@ Applicazione enterprise-level di tecnologie Big Data per l'analisi di un dataset
 
 - **Docker Desktop** installato e in esecuzione
 - **Python 3.10+** con conda/venv
-- **Git** e GitHub Desktop (opzionale)
 
 ### Setup Automatico (Raccomandato)
 
@@ -111,8 +110,8 @@ bigdata-ecommerce-project/
 │   └── ml/                   # Modelli ML
 │
 ├── data/
-│   ├── sample/               # Dataset ridotto (GitHub)
-│   ├── raw/                  # Dataset completo (locale)
+│   ├── sample/               # Dataset ridotto
+│   ├── raw/                  # Dataset completo
 │   └── schemas/              # JSON schemas
 │
 ├── docker-compose.yml        # MinIO + MLflow

@@ -3,8 +3,8 @@
 
 # Big Data Processing
 pyspark==3.4.1
-dask[complete]==2023.5.0
-distributed==2023.5.0
+dask[complete]==2025.2.0
+distributed==2025.2.0
 
 # Data Lake
 delta-spark==2.4.0
@@ -31,6 +31,7 @@ fastavro==1.9.0
 matplotlib==3.8.2
 seaborn==0.13.0
 plotly==5.18.0
+graphviz
 
 # Jupyter
 jupyter==1.0.0

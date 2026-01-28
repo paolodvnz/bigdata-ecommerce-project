@@ -37,8 +37,8 @@ NUM_BATCHES_FULL = FULL_TRANSACTIONS // BATCH_SIZE_FULL    # 100 batches
 SAMPLE_CUSTOMERS = 20_000
 SAMPLE_PRODUCTS = 1_000
 SAMPLE_TRANSACTIONS = 20_000_000
-BATCH_SIZE_SAMPLE = 500_000   # 500K transactions per batch
-NUM_BATCHES_SAMPLE = SAMPLE_TRANSACTIONS // BATCH_SIZE_SAMPLE    # 40 batches
+BATCH_SIZE_SAMPLE = 1_000_000   # 500K transactions per batch
+NUM_BATCHES_SAMPLE = SAMPLE_TRANSACTIONS // BATCH_SIZE_SAMPLE    # 20 batches
 
 # Paths
 BASE_DIR = Path(__file__).parent.parent
@@ -55,6 +55,10 @@ SCHEMAS_DIR.mkdir(parents=True, exist_ok=True)
 # ===========================
 # HELPER FUNCTIONS
 # ===========================
+
+def save_parquet(df: pd.DataFrame, filepath: Path, compression='snappy'):
+    """Save dataframe as Parquet with compression"""
+    df.to_parquet(filepath, engine='pyarrow', compression=compression, index=False)
 
 def save_csv(df: pd.DataFrame, filepath: Path):
     """Save dataframe as CSV"""
@@ -112,9 +116,11 @@ def generate_dataset(
     customers_df = generate_customers(num_customers)
     validate_customers(customers_df)
     
-    # Save as CSV
+    # Save as both Parquet and CSV
+    customers_parquet = output_dir / "customers.parquet"
     customers_csv = output_dir / "customers.csv"
     save_csv(customers_df, customers_csv)
+    save_parquet(customers_df, customers_parquet)
     save_schema(customers_df, SCHEMAS_DIR / f"{dataset_name.lower()}_customers_schema.json")
     
     # Step 2: Generate Products
@@ -122,9 +128,11 @@ def generate_dataset(
     products_df = generate_products(num_products)
     validate_products(products_df)
     
-    # Save as CSV
+    # Save as both Parquet and CSV
+    products_parquet = output_dir / "products.parquet"
     products_csv = output_dir / "products.csv"
     save_csv(products_df, products_csv)
+    save_parquet(products_df, products_parquet)
     save_schema(products_df, SCHEMAS_DIR / f"{dataset_name.lower()}_products_schema.json")
     
     # Step 3: Generate Transactions as single CSV file (no partitioning)
