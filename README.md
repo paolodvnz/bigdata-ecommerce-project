@@ -1,6 +1,6 @@
 # BigData E-commerce Analytics
 
-Progetto completo di analisi Big Data su dataset e-commerce con **100M+ transazioni**, utilizzando **PySpark**, **Dask**, **Delta Lake** e **MLflow**.
+Progetto di analisi Big Data su dataset e-commerce con **100M+ transazioni**, utilizzando **PySpark**, **Dask**, **Delta Lake** e **MLflow**.
 
 ## Panoramica
 
@@ -43,12 +43,12 @@ Lo script **setup.py** esegue automaticamente:
 1. Verifica Docker installato e running
 2. Avvia container MinIO + MLflow
 3. Configura servizi e crea bucket
-4. Genera dataset (scelta interattiva: SAMPLE o FULL)
+4. Genera dataset (SAMPLE o FULL)
 5. Upload dataset su MinIO
 
 **Scelta Dataset:**
-- **SAMPLE**: 1K customers, 100 products, 100K transactions (~1 minuto)
-- **FULL**: 1M customers, 50K products, 100M transactions (~15-20 minuti)
+- **SAMPLE**: 20K customers, 1K products, 20 transactions (~3-5 minuto)
+- **FULL**: 1M customers, 50K products, 100M transactions (~10-15 minuti)
 - **ENTRAMBI**: Prima SAMPLE poi FULL
 
 ### Setup Manuale (Avanzato)
@@ -69,7 +69,7 @@ python config/mlflow_config.py
 python scripts/generate_dataset.py --mode sample  # oppure full o both
 
 # 5. Upload su MinIO
-python scripts/upload_to_minio.py --mode sample   # oppure full o both
+python scripts/upload_to_minio.py                 # upload solo full
 ```
 
 ### Verifica Installazione
@@ -85,34 +85,27 @@ Dopo il setup, verifica che i servizi siano operativi:
 ```
 bigdata-ecommerce-project/
 │
-├── config/                    # Configurazioni servizi
-│   ├── minio_config.py       # MinIO S3-compatible
-│   ├── spark_config.py       # SparkSession setup
-│   └── mlflow_config.py      # ML experiment tracking
+├── config/                   # Configurazioni servizi
+│   ├── download_jars.py        # Download jars
+│   ├── minio_config.py         # MinIO S3-compatible
+│   ├── spark_config.py         # SparkSession setup
+│   └── mlflow_config.py        # ML experiment tracking
 │
-├── scripts/                   # Script generazione dati
-│   ├── generate_dataset.py   # Genera dataset sintetici
-│   ├── upload_to_minio.py    # Upload su MinIO
-│   └── utils/                # Helper functions
+├── scripts/                  # Script generazione dati
+│   ├── generate_dataset.py     # Genera dataset sintetici
+│   ├── upload_to_minio.py      # Upload su MinIO
+│   └── utils/                  # Helper functions
 │
-├── notebooks/                 # 8 Jupyter notebooks (deliverable)
-│   ├── 01_pandas_dask_limits.ipynb
-│   ├── 02_dask_dataframe.ipynb
-│   ├── 03_architetture_bigdata.ipynb
-│   ├── 04_pyspark_intro.ipynb
-│   ├── 05_spark_sql_pipeline.ipynb
-│   ├── 06_performance_ml.ipynb
-│   ├── 07_streaming_datalake.ipynb
-│   └── 08_debugging_monitoring.ipynb
-│
-├── src/                       # Codice modulare
-│   ├── etl/                  # Pipeline ETL
-│   └── ml/                   # Modelli ML
+├── notebooks/                # 8 Jupyter notebooks (deliverable)
+│   ├── 01_pandas_limits.ipynb
+│   ├── 02_dask_distributed.ipynb
+│   ├── 03_pyspark.ipynb
+│   ├── 04_pyspark_ml.ipynb
+│   └── 05_pyspark_streaming.ipynb
 │
 ├── data/
 │   ├── sample/               # Dataset ridotto
-│   ├── raw/                  # Dataset completo
-│   └── schemas/              # JSON schemas
+│   └── raw/                  # Dataset completo
 │
 ├── docker-compose.yml        # MinIO + MLflow
 ├── setup.py                  # Setup automatico
@@ -121,16 +114,13 @@ bigdata-ecommerce-project/
 
 ## Notebook
 
-Il progetto è organizzato in 8 notebook Jupyter che coprono tutti gli aspetti del Big Data processing:
+Il progetto è organizzato in 5 notebook Jupyter che coprono tutti gli aspetti del Big Data processing:
 
-1. **Pandas/Dask Limits** - Analisi limiti Pandas e introduzione Dask
-2. **Dask DataFrame** - Calcolo distribuito con Dask
-3. **Architetture BigData** - Storage distribuito (Parquet, ORC, S3)
-4. **PySpark Intro** - Introduzione a Spark DataFrame
-5. **Spark SQL** - Query distribuite e pipeline ETL
-6. **Performance + ML** - Tuning e Machine Learning con MLflow
-7. **Streaming + Delta** - Real-time processing e Data Lake
-8. **Debugging + Insight** - Monitoring e business analytics
+1. **Pandas Limits** - Analisi limiti Pandas
+2. **Dask Distributed** - Calcolo distribuito con Dask
+3. **PySpark ETL** - Calcolo distribuito con PySpark
+4. **PySpark ML** - Training ML con PySpark e MLflow Tracking
+5. **PySpark Streaming** - Streaming e Medallion Architecture con PySpark e Delta-Lake
 
 ## Utilizzo
 
@@ -157,9 +147,9 @@ from config.minio_config import get_s3a_path
 spark = get_spark_session("MyNotebook")
 
 # Carica dati da MinIO
-customers = spark.read.parquet(get_s3a_path("sample/", "customers.parquet"))
-products = spark.read.parquet(get_s3a_path("sample/", "products.parquet"))
-transactions = spark.read.parquet(get_s3a_path("sample/", "transactions/"))
+customers = spark.read.parquet(get_s3a_path("raw/", "customers.parquet"))
+products = spark.read.parquet(get_s3a_path("raw/", "products.parquet"))
+transactions = spark.read.parquet(get_s3a_path("raw/", "transactions/"))
 ```
 
 ## Tecnologie
@@ -230,18 +220,12 @@ python scripts/generate_dataset.py --mode sample
 python scripts/upload_to_minio.py --mode sample
 ```
 
-## Contributi
-
-Questo è un progetto accademico. Per suggerimenti o miglioramenti, apri una issue.
-
 ## Licenza
 
 MIT License - vedi file LICENSE
 
 ## Autore
 
-Paolo - Progetto Finale BigData E-commerce Analytics
+Paolo D'Avanzo - Progetto Finale BigData E-commerce Analytics
 
 ---
-
-**Pronto per iniziare?** Esegui `python setup.py` e il progetto sarà configurato in pochi minuti!

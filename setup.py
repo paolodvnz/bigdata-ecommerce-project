@@ -5,11 +5,9 @@ BigData E-commerce Project - Setup Automatico
 Questo script automatizza:
 1. Avvio container Docker (MinIO + MLflow)
 2. Configurazione servizi MinIO e MLflow
-3. Generazione dataset (SAMPLE o FULL a scelta utente)
+3. Generazione dataset (SAMPLE e FULL)
 4. Upload dataset su MinIO
 
-Author: Paolo
-Date: 2026-01-20
 """
 
 import subprocess
@@ -44,17 +42,17 @@ def print_step(step_num, total_steps, message):
 
 def print_success(message):
     """Stampa messaggio di successo"""
-    print(f"{Colors.OKGREEN}✓ {message}{Colors.ENDC}")
+    print(f"{Colors.OKGREEN}âœ“ {message}{Colors.ENDC}")
 
 
 def print_error(message):
     """Stampa messaggio di errore"""
-    print(f"{Colors.FAIL}✗ {message}{Colors.ENDC}")
+    print(f"{Colors.FAIL}âœ— {message}{Colors.ENDC}")
 
 
 def print_warning(message):
     """Stampa messaggio di warning"""
-    print(f"{Colors.WARNING}⚠ {message}{Colors.ENDC}")
+    print(f"{Colors.WARNING}âš  {message}{Colors.ENDC}")
 
 
 def check_docker():
@@ -62,7 +60,7 @@ def check_docker():
     Verifica che Docker sia installato e in esecuzione
     
     Returns:
-        bool: True se Docker è disponibile, False altrimenti
+        bool: True se Docker Ã¨ disponibile, False altrimenti
     """
     print_step(1, 4, "Verifica Docker")
     
@@ -112,7 +110,7 @@ def start_docker_compose():
     
     # Avvia container
     try:
-        print("   Avvio container in modalità detached...")
+        print("   Avvio container in modalitÃ  detached...")
         result = subprocess.run(
             ['docker', 'compose', 'up', '-d'],
             capture_output=True,
@@ -200,69 +198,64 @@ def configure_services():
 
 def generate_and_upload_dataset():
     """
-    Genera dataset e upload su MinIO con scelta interattiva
+    Generate BOTH datasets (sample + full) and upload FULL to MinIO
+    
+    - SAMPLE: Generated locally for quick testing (not uploaded)
+    - FULL: Generated and uploaded to MinIO for analysis
     
     Returns:
-        bool: True se operazione riuscita, False altrimenti
+        bool: True if operation successful, False otherwise
     """
-    print_step(4, 4, "Generazione e Upload Dataset")
+    print_step(4, 4, "Dataset Generation & Upload")
     
-    # Scelta dataset
-    print("\nScegli quale dataset generare:\n")
-    print("  1. SAMPLE  - 1K customers, 100 products, 100K transactions (~1 minuto)")
-    print("  2. FULL    - 1M customers, 50K products, 100M transactions (~15-20 minuti)")
-    print("  3. ENTRAMBI - Prima SAMPLE poi FULL\n")
+    print("Strategy:")
+    print("   - Generate BOTH datasets (sample + full)")
+    print("   - SAMPLE stays local for quick testing")
+    print("   - FULL uploaded to MinIO for analysis")
+    print("   - Total time: ~20-25 minutes")
     
-    while True:
-        choice = input("Scelta (1/2/3): ").strip()
-        if choice in ['1', '2', '3']:
-            break
-        print_warning("Scelta non valida. Inserisci 1, 2 o 3.")
-    
-    mode_map = {'1': 'sample', '2': 'full', '3': 'both'}
-    mode = mode_map[choice]
-    
-    print(f"\n   Modalità selezionata: {mode.upper()}\n")
-    
-    # Genera dataset
-    print("   Generazione dataset in corso...")
+    # Generate BOTH datasets (no user choice)
+    print("   Generating datasets (SAMPLE + FULL)...")
     dataset_script = Path('scripts/generate_dataset.py')
     if not dataset_script.exists():
-        print_error("File scripts/generate_dataset.py non trovato")
+        print_error("File scripts/generate_dataset.py not found")
         return False
     
     try:
+        # Generate BOTH: send '3' as input for choice
         result = subprocess.run(
-            [sys.executable, str(dataset_script), '--mode', mode],
-            capture_output=False,  # Mostra output in real-time
+            [sys.executable, str(dataset_script)],
+            input='3',  # Choice 3 = BOTH
+            capture_output=False,
             text=True,
             check=True
         )
-        print_success("Dataset generati")
+        print_success("Datasets generated (SAMPLE + FULL)")
         
     except subprocess.CalledProcessError as e:
-        print_error(f"Errore generazione dataset: {e}")
+        print_error(f"Error generating datasets: {e}")
         return False
     
-    # Upload su MinIO
-    print("\n   Upload dataset su MinIO...")
+    # Upload ONLY FULL to MinIO (no arguments needed)
+    print("Uploading FULL dataset to MinIO...")
     upload_script = Path('scripts/upload_to_minio.py')
     if not upload_script.exists():
-        print_error("File scripts/upload_to_minio.py non trovato")
+        print_error("File scripts/upload_to_minio.py not found")
         return False
     
     try:
         result = subprocess.run(
-            [sys.executable, str(upload_script), '--mode', mode],
-            capture_output=False,  # Mostra output in real-time
+            [sys.executable, str(upload_script)],
+            capture_output=False,
             text=True,
             check=True
         )
-        print_success("Dataset caricati su MinIO")
+        print_success("FULL dataset uploaded to MinIO")
+        print_success("SAMPLE dataset ready locally")
         return True
         
     except subprocess.CalledProcessError as e:
-        print_error(f"Errore upload dataset: {e}")
+        print_error(f"Error uploading dataset: {e}")
         return False
 
 
@@ -294,11 +287,17 @@ def main():
     print_header("Setup Completato con Successo!")
     
     print(f"{Colors.OKGREEN}{Colors.BOLD}Servizi disponibili:{Colors.ENDC}\n")
-    print(f"  • MinIO Console:  {Colors.OKBLUE}http://localhost:9001{Colors.ENDC}")
+    print(f"  â€¢ MinIO Console:  {Colors.OKBLUE}http://localhost:9001{Colors.ENDC}")
     print(f"    Credenziali:    minioadmin / minioadmin")
-    print(f"\n  • MLflow UI:      {Colors.OKBLUE}http://localhost:5000{Colors.ENDC}")
-    print(f"\n  • Jupyter:        {Colors.OKBLUE}jupyter notebook{Colors.ENDC}")
+    print(f"\n  â€¢ MLflow UI:      {Colors.OKBLUE}http://localhost:5000{Colors.ENDC}")
+    print(f"\n  â€¢ Jupyter:        {Colors.OKBLUE}jupyter notebook{Colors.ENDC}")
     
+    print(f"\n{Colors.OKGREEN}{Colors.BOLD}Prossimi passi:{Colors.ENDC}\n")
+    print("  1. Apri i notebook in notebooks/")
+    print("  2. Esplora i dataset su MinIO Console")
+    print("  3. Buon lavoro!\n")
+
+
 if __name__ == "__main__":
     try:
         main()

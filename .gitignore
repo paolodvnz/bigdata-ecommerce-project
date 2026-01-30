@@ -43,7 +43,7 @@ venv.bak/
 .DS_Store
 Thumbs.db
 
-# Project Specific - Docker volumes (mantieni cartelle vuote)
+# Project Specific - Docker volumes (keep empty directories)
 minio-data/*
 !minio-data/.gitkeep
 
@@ -53,12 +53,15 @@ mlruns/*
 *.log
 *.tmp
 
-# Data - ignora dati ma mantieni struttura
+# Data - ignore data (keep empty directories)
 data/raw/*
 !data/raw/.gitkeep
 
 data/sample/*
 !data/sample/.gitkeep
+
+# Jars - ignore jars 
+config/jars
 
 # Ignora tutti i dati ovunque
 *.parquet

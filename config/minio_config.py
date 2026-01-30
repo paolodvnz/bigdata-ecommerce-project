@@ -16,8 +16,8 @@ BUCKET_NAME = "bigdata-ecommerce"
 
 # Paths
 RAW_DATA_PREFIX = "raw/"
-PROCESSED_DATA_PREFIX = "processed/"
-DELTA_LAKE_PREFIX = "delta-lake/"
+ML_DATA_PREFIX = "ml_data/"
+DELTA_LAKE_TEST_PREFIX = "delta-lake-test/"
 STREAMING_PREFIX = "streaming/"
 
 
@@ -73,4 +73,3 @@ if __name__ == "__main__":
     # Test connection
     print("Testing MinIO connection...")
     create_bucket_if_not_exists()
-    print(f"S3A path example: {get_s3a_path('raw/', 'test.parquet')}")
