@@ -85,18 +85,18 @@ Dopo il setup, verifica che i servizi siano operativi:
 ```
 bigdata-ecommerce-project/
 │
-├── config/                   # Configurazioni servizi
-│   ├── download_jars.py        # Download jars
-│   ├── minio_config.py         # MinIO S3-compatible
-│   ├── spark_config.py         # SparkSession setup
-│   └── mlflow_config.py        # ML experiment tracking
+├── config/                        # Configurazioni servizi
+│   ├── download_jars.py             # Download jars
+│   ├── minio_config.py              # MinIO S3-compatible
+│   ├── spark_config.py              # SparkSession setup
+│   └── mlflow_config.py             # ML experiment tracking 
 │
-├── scripts/                  # Script generazione dati
-│   ├── generate_dataset.py     # Genera dataset sintetici
-│   ├── upload_to_minio.py      # Upload su MinIO
-│   └── utils/                  # Helper functions
+├── scripts/                       # Script generazione e upload dati
+│   ├── generate_dataset.py          # Genera dataset sintetici
+│   ├── upload_to_minio.py           # Upload su MinIO
+│   └── utils/                       # Helper functions
 │
-├── notebooks/                # 8 Jupyter notebooks (deliverable)
+├── notebooks/                     # 5 Jupyter notebooks
 │   ├── 01_pandas_limits.ipynb
 │   ├── 02_dask_distributed.ipynb
 │   ├── 03_pyspark.ipynb
@@ -104,17 +104,17 @@ bigdata-ecommerce-project/
 │   └── 05_pyspark_streaming.ipynb
 │
 ├── data/
-│   ├── sample/               # Dataset ridotto
-│   └── raw/                  # Dataset completo
+│   ├── sample/                    # Dataset ridotto
+│   └── raw/                       # Dataset completo
 │
-├── docker-compose.yml        # MinIO + MLflow
-├── setup.py                  # Setup automatico
-└── requirements.txt          # Dipendenze Python
+├── docker-compose.yml             # MinIO + MLflow
+├── setup.py                       # Setup automatico
+└── requirements.txt               # Dipendenze Python
 ```
 
 ## Notebook
 
-Il progetto è organizzato in 5 notebook Jupyter che coprono tutti gli aspetti del Big Data processing:
+Il progetto è organizzato in 5 notebook Jupyter che coprono gli aspetti fondamentali del Big Data processing:
 
 1. **Pandas Limits** - Analisi limiti Pandas
 2. **Dask Distributed** - Calcolo distribuito con Dask
@@ -152,24 +152,6 @@ products = spark.read.parquet(get_s3a_path("raw/", "products.parquet"))
 transactions = spark.read.parquet(get_s3a_path("raw/", "transactions/"))
 ```
 
-## Tecnologie
-
-- **Python 3.10**
-- **Pandas 2.3.3** - Analisi dati piccoli/medi
-- **Dask 2023.5.0** - Calcolo distribuito
-- **PySpark 3.4.1** - Big Data processing
-- **Delta Lake 2.4.0** - ACID transactions
-- **MLflow 2.9.2** - ML experiment tracking
-- **MinIO** - S3-compatible storage
-- **Docker** - Containerization
-
-## Caratteristiche Chiave
-
-### Big Data Processing
-- Dataset 100M+ transazioni
-- Elaborazione distribuita con Spark
-- Ottimizzazioni performance (partitioning, caching, shuffle)
-
 ## Stop e Cleanup
 
 ```bash
@@ -183,6 +165,17 @@ docker compose down
 docker compose down -v
 rm -rf minio-data/ mlruns/ data/raw/ data/sample/
 ```
+
+## Tecnologie
+
+- **Python 3.10**
+- **Pandas 2.3.3** - Analisi dati piccoli/medi
+- **Dask 2023.5.0** - Calcolo distribuito
+- **PySpark 3.4.1** - Big Data processing
+- **Delta Lake 2.4.0** - ACID transactions
+- **MLflow 2.9.2** - ML experiment tracking
+- **MinIO** - S3-compatible storage
+- **Docker** - Containerization
 
 ## Troubleshooting
 
