@@ -110,7 +110,7 @@ def start_docker_compose():
     
     # Avvia container
     try:
-        print("   Avvio container in modalitÃ  detached...")
+        print("   Avvio container in modalità detached...")
         result = subprocess.run(
             ['docker', 'compose', 'up', '-d'],
             capture_output=True,
@@ -287,10 +287,10 @@ def main():
     print_header("Setup Completato con Successo!")
     
     print(f"{Colors.OKGREEN}{Colors.BOLD}Servizi disponibili:{Colors.ENDC}\n")
-    print(f"  â€¢ MinIO Console:  {Colors.OKBLUE}http://localhost:9001{Colors.ENDC}")
+    print(f"  MinIO Console:  {Colors.OKBLUE}http://localhost:9001{Colors.ENDC}")
     print(f"    Credenziali:    minioadmin / minioadmin")
-    print(f"\n  â€¢ MLflow UI:      {Colors.OKBLUE}http://localhost:5000{Colors.ENDC}")
-    print(f"\n  â€¢ Jupyter:        {Colors.OKBLUE}jupyter notebook{Colors.ENDC}")
+    print(f"\n  MLflow UI:      {Colors.OKBLUE}http://localhost:5000{Colors.ENDC}")
+    print(f"\n  Jupyter:        {Colors.OKBLUE}jupyter notebook{Colors.ENDC}")
     
     print(f"\n{Colors.OKGREEN}{Colors.BOLD}Prossimi passi:{Colors.ENDC}\n")
     print("  1. Apri i notebook in notebooks/")

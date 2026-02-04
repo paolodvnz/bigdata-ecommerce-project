@@ -84,13 +84,18 @@ def get_spark_session(app_name="BigData-Ecommerce", enable_delta=True):
         .config("spark.databricks.delta.retentionDurationCheck.enabled", "false") \
         .config("spark.sql.adaptive.enabled", "true") \
         .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
-        .config("spark.sql.shuffle.partitions", "200") \
+        .config("spark.sql.shuffle.partitions", "100") \
         .config("spark.sql.parquet.int96RebaseModeInRead", "CORRECTED") \
         .config("spark.sql.parquet.datetimeRebaseModeInRead", "CORRECTED") \
         .config("spark.ui.showConsoleProgress", "false") \
-        .config("spark.driver.memory", "4g") \
-        .config("spark.executor.memory", "2g") \
-        .config("spark.driver.maxResultSize", "2g")
+        .config("spark.driver.memory", "6g") \
+        .config("spark.executor.memory", "8g") \
+        .config("spark.driver.maxResultSize", "2g") \
+        .config("spark.executor.extraJavaOptions", "-Xss16m") \
+        .config("spark.driver.extraJavaOptions", "-Xss16m") \
+        .config("spark.default.parallelism", "24") \
+        .config("spark.memory.fraction", "0.8") \
+        .config("spark.memory.storageFraction", "0.3")
     
     # Create Spark session
     if enable_delta:
