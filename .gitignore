@@ -63,10 +63,8 @@ data/sample/*
 # Jars - ignore jars 
 config/jars
 
-# Ignora tutti i dati ovunque
+# Ignore all data
 *.parquet
-*.orc
-*.csv
 
 # Spark
 spark-warehouse/

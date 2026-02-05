@@ -122,7 +122,7 @@ def generate_customers(num_customers: int, start_id: int = 1) -> pd.DataFrame:
     postal_codes = [fake.postcode() for _ in range(num_customers)]
     
     # Generate registration dates
-    start_date = datetime(2022, 1, 1).timestamp()
+    start_date = datetime(2024, 1, 1).timestamp()
     end_date = datetime(2024, 12, 31).timestamp()
     random_timestamps = np.random.uniform(start_date, end_date, size=num_customers)
     registration_dates = [datetime.fromtimestamp(ts).date() for ts in random_timestamps]
@@ -245,8 +245,8 @@ def generate_transactions_batch(
     customers_df: pd.DataFrame,
     products_df: pd.DataFrame,
     start_id: int = 1,
-    start_date: datetime = datetime(2022, 1, 1),
-    end_date: datetime = datetime(2025, 1, 19)
+    start_date: datetime = datetime(2024, 1, 1),
+    end_date: datetime = datetime(2025, 12, 31)
 ) -> pd.DataFrame:
     """
     Generate transaction dataset batch

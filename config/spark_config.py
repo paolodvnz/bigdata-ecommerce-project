@@ -11,7 +11,6 @@ import logging
 # JAR directory
 JARS_DIR = Path(__file__).parent / "jars"
 
-
 def get_jar_paths():
     """
     Get paths to all required JAR files
@@ -68,7 +67,7 @@ def get_spark_session(app_name="BigData-Ecommerce", enable_delta=True):
     # Base configuration - using spark.jars instead of spark.jars.packages
     builder = SparkSession.builder \
         .appName(app_name) \
-        .config("spark.driver.extraJavaOptions", 
+        .config("spark.driver.extraJavaOptions",                                 
         "-Dlog4j.logger.org.apache.spark=ERROR "
         "-Dlog4j.logger.org.apache.hadoop=ERROR "
         "-Dlog4j.logger.org.eclipse.jetty=ERROR") \
@@ -81,10 +80,16 @@ def get_spark_session(app_name="BigData-Ecommerce", enable_delta=True):
         .config("spark.hadoop.fs.s3a.path.style.access", "true") \
         .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
         .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
+        .config("spark.hadoop.fs.s3.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
+        .config("spark.hadoop.fs.s3.endpoint", "http://localhost:9000") \
+        .config("spark.hadoop.fs.s3.access.key", "minioadmin") \
+        .config("spark.hadoop.fs.s3.secret.key", "minioadmin") \
+        .config("spark.hadoop.fs.s3.path.style.access", "true") \
+        .config("spark.hadoop.fs.s3.connection.ssl.enabled", "false") \
         .config("spark.databricks.delta.retentionDurationCheck.enabled", "false") \
         .config("spark.sql.adaptive.enabled", "true") \
         .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
-        .config("spark.sql.shuffle.partitions", "100") \
+        .config("spark.sql.shuffle.partitions", "50") \
         .config("spark.sql.parquet.int96RebaseModeInRead", "CORRECTED") \
         .config("spark.sql.parquet.datetimeRebaseModeInRead", "CORRECTED") \
         .config("spark.ui.showConsoleProgress", "false") \
@@ -95,7 +100,15 @@ def get_spark_session(app_name="BigData-Ecommerce", enable_delta=True):
         .config("spark.driver.extraJavaOptions", "-Xss16m") \
         .config("spark.default.parallelism", "24") \
         .config("spark.memory.fraction", "0.8") \
-        .config("spark.memory.storageFraction", "0.3")
+        .config("spark.memory.storageFraction", "0.3") \
+        .config("spark.executor.extraJavaOptions", 
+                "-XX:+UseG1GC "
+                "-XX:InitiatingHeapOccupancyPercent=35 "
+                "-XX:ConcGCThreads=4 "
+                "-XX:+ParallelRefProcEnabled") \
+        .config("spark.driver.extraJavaOptions",
+                "-XX:+UseG1GC "
+                "-XX:InitiatingHeapOccupancyPercent=35")
     
     # Create Spark session
     if enable_delta:
@@ -111,45 +124,7 @@ def get_spark_session(app_name="BigData-Ecommerce", enable_delta=True):
     print(f"Spark UI: http://localhost:4040")
     print(f"Delta Lake + MinIO: Enabled")
     
-    # Verify S3A FileSystem is available
-    try:
-        spark.sparkContext._jvm.org.apache.hadoop.fs.s3a.S3AFileSystem
-        print("  S3AFileSystem loaded successfully")
-    except Exception as e:
-        print(f"  WARNING: S3AFileSystem not available: {e}")
-    
     return spark
-
-
-def stop_spark_session(spark):
-    """
-    Stop Spark session
-    
-    Args:
-        spark (SparkSession): Spark session to stop
-    """
-    if spark:
-        spark.stop()
-        print("Spark Session stopped")
-
-
-# Common Spark configurations for different scenarios
-SPARK_CONFIGS = {
-    "development": {
-        "spark.driver.memory": "2g",
-        "spark.executor.memory": "2g",
-        "spark.sql.shuffle.partitions": "10"
-    },
-    "production": {
-        "spark.driver.memory": "8g",
-        "spark.executor.memory": "8g",
-        "spark.sql.shuffle.partitions": "200"
-    },
-    "streaming": {
-        "spark.streaming.stopGracefullyOnShutdown": "true",
-        "spark.sql.streaming.schemaInference": "true"
-    }
-}
 
 
 if __name__ == "__main__":
@@ -159,4 +134,5 @@ if __name__ == "__main__":
     for key, value in spark.sparkContext.getConf().getAll():
         if 's3a' in key or 'delta' in key or 'jars' in key:
             print(f"  {key} = {value}")
-    stop_spark_session(spark)
+    spark.stop()
+    print("Spark Session stopped")

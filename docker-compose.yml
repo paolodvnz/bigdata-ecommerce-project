@@ -12,18 +12,36 @@ services:
       - ./minio-data:/data
     command: server /data --console-address ":9001"
     restart: unless-stopped
+    networks:
+      - bigdata-network
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.9.2
     container_name: mlflow-server
     ports:
       - "5000:5000"
+    environment:
+      # MinIO credentials (AWS S3 compatible)
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      # MinIO endpoint (use container name for internal network)
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      # Disable SSL for local development
+      MLFLOW_S3_IGNORE_TLS: "true"
     volumes:
       - ./mlruns:/mlflow/mlruns
     command: >
       mlflow server
       --backend-store-uri sqlite:///mlflow/mlruns/mlflow.db
-      --default-artifact-root /mlflow/
+      --default-artifact-root s3://bigdata-ecommerce/mlflow-artifacts/
       --host 0.0.0.0
       --port 5000
     restart: unless-stopped
+    networks:
+      - bigdata-network
+    depends_on:
+      - minio
+
+networks:
+  bigdata-network:
+    driver: bridge

@@ -45,12 +45,10 @@ BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data"
 RAW_DIR = DATA_DIR / "raw"
 SAMPLE_DIR = DATA_DIR / "sample"
-SCHEMAS_DIR = DATA_DIR / "schemas"
 
 # Create directories
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 SAMPLE_DIR.mkdir(parents=True, exist_ok=True)
-SCHEMAS_DIR.mkdir(parents=True, exist_ok=True)
 
 # ===========================
 # HELPER FUNCTIONS

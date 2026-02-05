@@ -1,0 +1,4 @@
+,Time (s),Use Case
+Threads,2.0740413665771484,I/O bound
+Processes,3.1157588958740234,CPU bound
+Distributed,2.78658127784729,Production
