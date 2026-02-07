@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """
-Download Required JARs for Spark + Delta Lake + MinIO Integration
-Cross-platform Python version
+Download Required JARs for Spark + Delta Lake + AVRO + MinIO Integration
 """
 import urllib.request
 import sys
 from pathlib import Path
-
 
 # Maven Central base URL
 MAVEN_BASE = "https://repo1.maven.org/maven2"
@@ -16,6 +14,7 @@ HADOOP_VERSION = "3.3.1"
 AWS_SDK_VERSION = "1.11.901"
 DELTA_VERSION = "2.4.0"
 SCALA_VERSION = "2.12"
+AVRO_VERSION = "3.4.1"
 
 # Define JARs to download
 JARS = {
@@ -30,6 +29,9 @@ JARS = {
     
     f"delta-storage-{DELTA_VERSION}.jar": 
         f"{MAVEN_BASE}/io/delta/delta-storage/{DELTA_VERSION}/delta-storage-{DELTA_VERSION}.jar",
+    
+    f"spark-avro-{SCALA_VERSION}-{AVRO_VERSION}.jar": 
+        f"{MAVEN_BASE}/org/apache/spark/spark-avro_{SCALA_VERSION}/{AVRO_VERSION}/spark-avro_{SCALA_VERSION}-{AVRO_VERSION}.jar"
 }
 
 
@@ -64,7 +66,7 @@ def main():
     """Main function"""
     
     print("=" * 70)
-    print("  Downloading Spark JARs for Delta Lake + MinIO Integration")
+    print("  Downloading Spark JARs for Delta Lake + AVRO + MinIO Integration")
     print("=" * 70)
     print()
     

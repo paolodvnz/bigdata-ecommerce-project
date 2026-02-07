@@ -43,13 +43,10 @@ Lo script **setup.py** esegue automaticamente:
 1. Verifica Docker installato e running
 2. Avvia container MinIO + MLflow
 3. Configura servizi e crea bucket
-4. Genera dataset (SAMPLE o FULL)
-5. Upload dataset su MinIO
+4. Download JARs 
+5. Genera dataset (SAMPLE o FULL)
+6. Upload dataset su MinIO
 
-**Scelta Dataset:**
-- **SAMPLE**: 20K customers, 1K products, 20 transactions (~3-5 minuto)
-- **FULL**: 1M customers, 50K products, 100M transactions (~10-15 minuti)
-- **ENTRAMBI**: Prima SAMPLE poi FULL
 
 ### Setup Manuale (Avanzato)
 
@@ -65,12 +62,20 @@ python config/minio_config.py
 # 3. Configura MLflow
 python config/mlflow_config.py
 
-# 4. Genera dataset
-python scripts/generate_dataset.py --mode sample  # oppure full o both
+# 4. Donload JARs
+python config/download_jars.py
 
-# 5. Upload su MinIO
+# 5. Genera dataset
+python scripts/generate_dataset.py --mode both    # oppure full o sample
+
+# 6. Upload su MinIO
 python scripts/upload_to_minio.py                 # upload solo full
 ```
+
+**Scelta Dataset:**
+- **SAMPLE**: 20K customers, 1K products, 20 transactions (~3-5 minuto)
+- **FULL**: 1M customers, 50K products, 100M transactions (~10-15 minuti)
+- **ENTRAMBI**: Prima SAMPLE poi FULL
 
 ### Verifica Installazione
 
@@ -118,7 +123,7 @@ Il progetto è organizzato in 5 notebook Jupyter che coprono gli aspetti fondame
 
 1. **Pandas Limits** - Analisi limiti Pandas
 2. **Dask Distributed** - Calcolo distribuito con Dask
-3. **PySpark ETL** - Calcolo distribuito con PySpark
+3. **PySpark ETL** - Calcolo distribuito con PySpark e Pipiline ETL
 4. **PySpark ML** - Training ML con PySpark e MLflow Tracking
 5. **PySpark Streaming** - Streaming e Medallion Architecture con PySpark e Delta-Lake
 
