@@ -62,7 +62,7 @@ python config/minio_config.py
 # 3. Configura MLflow
 python config/mlflow_config.py
 
-# 4. Donload JARs
+# 4. Download JARs
 python config/download_jars.py
 
 # 5. Genera dataset
@@ -123,7 +123,7 @@ Il progetto è organizzato in 5 notebook Jupyter che coprono gli aspetti fondame
 
 1. **Pandas Limits** - Analisi limiti Pandas
 2. **Dask Distributed** - Calcolo distribuito con Dask
-3. **PySpark ETL** - Calcolo distribuito con PySpark e Pipiline ETL
+3. **PySpark ETL** - Calcolo distribuito con PySpark e Pipeline ETL
 4. **PySpark ML** - Training ML con PySpark e MLflow Tracking
 5. **PySpark Streaming** - Streaming e Medallion Architecture con PySpark e Delta-Lake
 
